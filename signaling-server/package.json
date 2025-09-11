@@ -1,0 +1,22 @@
+{
+  "name": "p2p-signaling-server",
+  "version": "1.0.0",
+  "description": "WebRTC signaling server for P2P file sharing",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "watch": "nodemon server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.0",
+    "socket.io": "^4.7.5",
+    "cors": "^2.8.5"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.20"
+  },
+  "keywords": ["webrtc", "p2p", "signaling", "file-sharing"],
+  "author": "P2P File Share",
+  "license": "MIT"
+}
