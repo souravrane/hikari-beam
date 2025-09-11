@@ -48,3 +48,7 @@ coverage/
 
 # output
 *.out
+
+CLAUDE.md
+TESTING.md
+start.sh
