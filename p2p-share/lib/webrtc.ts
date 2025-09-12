@@ -10,7 +10,6 @@ const DEFAULT_RTC_CONFIG: RTCConfiguration = {
 
 // DataChannel configuration  
 const DATA_CHANNEL_CONFIG: RTCDataChannelInit = {
-  label: 'file',
   ordered: true, // Reliable ordered delivery
   maxRetransmits: 3
 }
@@ -173,7 +172,7 @@ function waitForBufferDrain(dataChannel: RTCDataChannel): Promise<void> {
         resolve()
       } else {
         // Wait for bufferedamountlow event
-        dataChannel.addEventListener('bufferedamountlow', resolve, { once: true })
+        dataChannel.addEventListener('bufferedamountlow', () => resolve(), { once: true })
       }
     }
     checkBuffer()

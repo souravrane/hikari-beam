@@ -5,6 +5,7 @@ import {
   FileMetadata,
   P2PMessage,
   TransferProgress,
+  GlobalProgress,
   UseFileSenderReturn,
   UseFileReceiverReturn,
   PeerConnection,
@@ -29,7 +30,7 @@ import {
   updateBitfield,
 } from "./idb";
 import {
-  sendMessage,
+  sendMessage as sendWebRTCMessage,
   sendChunk,
   createPeerConnection,
   createDataChannel,
@@ -44,7 +45,7 @@ export function useP2PFileSender(
   sendSignal: (peerId: string, signal: any) => void
 ): UseFileSenderReturn {
   const [isActive, setIsActive] = useState(false);
-  const [progress, setProgress] = useState(null);
+  const [progress, setProgress] = useState<GlobalProgress | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [currentFile, setCurrentFile] = useState<File | null>(null);
   const [fileMetadata, setFileMetadata] = useState<FileMetadata | null>(null);
@@ -78,7 +79,7 @@ export function useP2PFileSender(
         // Send metadata to all connected peers
         for (const [peerId, connection] of connections.entries()) {
           if (connection.dataChannel?.readyState === "open") {
-            await sendMessage(connection.dataChannel, {
+            await sendWebRTCMessage(connection.dataChannel, {
               type: "META",
               data: metadata,
               timestamp: Date.now(),
@@ -204,7 +205,6 @@ export function useP2PFileSender(
     progress,
     isActive,
     error,
-    handlePeerMessage,
   };
 }
 
@@ -282,7 +282,7 @@ export function useP2PFileReceiver(
           // Request chunks in batches
           for (const range of missingRanges.slice(0, 10)) {
             // Limit concurrent requests
-            await sendMessage(hostConnection.dataChannel, {
+            await sendWebRTCMessage(hostConnection.dataChannel, {
               type: "REQUEST",
               data: {
                 startIndex: range.start,
@@ -334,7 +334,7 @@ export function useP2PFileReceiver(
               (conn) => conn.id.includes("host")
             );
             if (hostConnection?.dataChannel?.readyState === "open") {
-              await sendMessage(hostConnection.dataChannel, {
+              await sendWebRTCMessage(hostConnection.dataChannel, {
                 type: "ACK",
                 data: { index },
                 timestamp: Date.now(),
@@ -398,8 +398,6 @@ export function useP2PFileReceiver(
     progress,
     downloadedFile,
     error,
-    pendingMetadata,
-    handleHostMessage,
   };
 }
 
@@ -421,7 +419,7 @@ export function useP2PConnections(
         setError(null);
 
         const peerConnection = createPeerConnection();
-        let dataChannel: RTCDataChannel;
+        let dataChannel: RTCDataChannel | null = null;
 
         if (isInitiator) {
           // Create data channel (initiator)
@@ -550,7 +548,7 @@ export function useP2PConnections(
     async (peerId: string, message: P2PMessage) => {
       const connection = connections.get(peerId);
       if (connection?.dataChannel?.readyState === "open") {
-        await sendMessage(connection.dataChannel, message);
+        await sendWebRTCMessage(connection.dataChannel, message);
       }
     },
     [connections]

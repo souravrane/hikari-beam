@@ -114,11 +114,11 @@ export interface SocketEvents {
   join: (roomId: string) => void
   signal: (data: { to: string; signal: SignalingMessage }) => void
   
-  // Server to Client
+  // Server to Client  
   joined: (data: { roomId: string; peers: PeerInfo[]; isHost: boolean }) => void
   'peer-joined': (peer: PeerInfo) => void
   'peer-left': (peerId: string) => void
-  signal: (data: { from: string; signal: SignalingMessage }) => void
+  'signal-relay': (data: { from: string; signal: SignalingMessage }) => void
   'host-status': (data: { isOnline: boolean }) => void
   'host-rejoined': (data: { fileId?: string }) => void
   error: (message: string) => void

@@ -184,10 +184,6 @@ export function useSignaling(): UseSignalingReturn {
     peers,
     isHost,
     joinRoom,
-    leaveRoom,
-    sendSignal,
-    onMessage,
-    getStatus,
     error
   }
 }
@@ -208,47 +204,71 @@ export function useP2PSignaling(roomId: string | null) {
 
   // Handle new peers joining
   useEffect(() => {
-    const cleanup = signaling.onMessage('peer-joined', (peer: PeerInfo) => {
-      console.log('New peer joined, initiating connection:', peer.id)
-      // Connection initiation will be handled by P2P hooks
-    })
-
-    return cleanup
-  }, [signaling])
+    if (signaling.socket) {
+      const handlePeerJoined = (peer: PeerInfo) => {
+        console.log('New peer joined, initiating connection:', peer.id)
+        // Connection initiation will be handled by P2P hooks
+      }
+      
+      signaling.socket.on('peer-joined', handlePeerJoined)
+      
+      return () => {
+        signaling.socket.off('peer-joined', handlePeerJoined)
+      }
+    }
+  }, [signaling.socket])
 
   // Handle peers leaving
   useEffect(() => {
-    const cleanup = signaling.onMessage('peer-left', (peerId: string) => {
-      console.log('Peer left, cleaning up connection:', peerId)
-      setConnections(prev => {
-        const newConnections = new Map(prev)
-        newConnections.delete(peerId)
-        return newConnections
-      })
-    })
-
-    return cleanup
-  }, [signaling])
+    if (signaling.socket) {
+      const handlePeerLeft = (peerId: string) => {
+        console.log('Peer left, cleaning up connection:', peerId)
+        setConnections(prev => {
+          const newConnections = new Map(prev)
+          newConnections.delete(peerId)
+          return newConnections
+        })
+      }
+      
+      signaling.socket.on('peer-left', handlePeerLeft)
+      
+      return () => {
+        signaling.socket.off('peer-left', handlePeerLeft)
+      }
+    }
+  }, [signaling.socket])
 
   // Handle host status changes
   useEffect(() => {
-    const cleanup = signaling.onMessage('host-status', (data: { isOnline: boolean }) => {
-      console.log('Host status changed:', data.isOnline)
-      // This will be handled by file transfer hooks
-    })
-
-    return cleanup
-  }, [signaling])
+    if (signaling.socket) {
+      const handleHostStatus = (data: { isOnline: boolean }) => {
+        console.log('Host status changed:', data.isOnline)
+        // This will be handled by file transfer hooks
+      }
+      
+      signaling.socket.on('host-status', handleHostStatus)
+      
+      return () => {
+        signaling.socket.off('host-status', handleHostStatus)
+      }
+    }
+  }, [signaling.socket])
 
   // Handle host rejoin
   useEffect(() => {
-    const cleanup = signaling.onMessage('host-rejoined', (data: { fileId?: string }) => {
-      console.log('Host rejoined with file:', data.fileId)
-      // This will be handled by file transfer hooks for resume logic
-    })
-
-    return cleanup
-  }, [signaling])
+    if (signaling.socket) {
+      const handleHostRejoined = (data: { fileId?: string }) => {
+        console.log('Host rejoined with file:', data.fileId)
+        // This will be handled by file transfer hooks for resume logic
+      }
+      
+      signaling.socket.on('host-rejoined', handleHostRejoined)
+      
+      return () => {
+        signaling.socket.off('host-rejoined', handleHostRejoined)
+      }
+    }
+  }, [signaling.socket])
 
   return {
     ...signaling,
