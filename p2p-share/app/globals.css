@@ -90,3 +90,13 @@ body {
 .speed-indicator {
   font-variant-numeric: tabular-nums;
 }
+
+/* Shimmer animation for skeleton loading */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.animate-shimmer {
+  animation: shimmer 1.5s infinite;
+}

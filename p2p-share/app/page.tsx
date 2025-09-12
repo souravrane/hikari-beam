@@ -8,12 +8,15 @@ import {
   clearStoredHostRoom,
   isStoredHostForRoom,
 } from "@/p2p-manager-fixed";
+import { LoadingOverlay } from "./components/LoadingSkeleton";
 
 export default function HomePage() {
   const router = useRouter();
   const [roomId, setRoomId] = useState("");
   const [error, setError] = useState("");
   const [storedHostRoom, setStoredHostRoom] = useState<string | null>(null);
+  const [isCreatingRoom, setIsCreatingRoom] = useState(false);
+  const [isJoiningRoom, setIsJoiningRoom] = useState(false);
 
   // Check for stored host room on component mount
   useEffect(() => {
@@ -23,12 +26,22 @@ export default function HomePage() {
     }
   }, []);
 
-  const handleCreateRoom = () => {
-    const newRoomId = generateRoomId();
-    router.push(`/r/${newRoomId}`);
+  const handleCreateRoom = async () => {
+    setIsCreatingRoom(true);
+    setError("");
+    
+    try {
+      const newRoomId = generateRoomId();
+      // Add a small delay to show loading state
+      await new Promise(resolve => setTimeout(resolve, 500));
+      router.push(`/r/${newRoomId}`);
+    } catch (err) {
+      setError("Failed to create room");
+      setIsCreatingRoom(false);
+    }
   };
 
-  const handleJoinRoom = () => {
+  const handleJoinRoom = async () => {
     if (!roomId.trim()) {
       setError("Please enter a room ID");
       return;
@@ -39,7 +52,17 @@ export default function HomePage() {
       return;
     }
 
-    router.push(`/r/${roomId}`);
+    setIsJoiningRoom(true);
+    setError("");
+
+    try {
+      // Add a small delay to show loading state
+      await new Promise(resolve => setTimeout(resolve, 500));
+      router.push(`/r/${roomId}`);
+    } catch (err) {
+      setError("Failed to join room");
+      setIsJoiningRoom(false);
+    }
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -57,12 +80,22 @@ export default function HomePage() {
     }
   };
 
-  const handleCreateNewRoom = () => {
-    // Clear the stored host room when creating a new one
-    clearStoredHostRoom();
-    setStoredHostRoom(null);
-    const newRoomId = generateRoomId();
-    router.push(`/r/${newRoomId}`);
+  const handleCreateNewRoom = async () => {
+    setIsCreatingRoom(true);
+    setError("");
+    
+    try {
+      // Clear the stored host room when creating a new one
+      clearStoredHostRoom();
+      setStoredHostRoom(null);
+      const newRoomId = generateRoomId();
+      // Add a small delay to show loading state
+      await new Promise(resolve => setTimeout(resolve, 500));
+      router.push(`/r/${newRoomId}`);
+    } catch (err) {
+      setError("Failed to create room");
+      setIsCreatingRoom(false);
+    }
   };
 
   const handleDismissHostRoom = () => {
@@ -156,25 +189,32 @@ export default function HomePage() {
             </h2>
 
             <div className="space-y-4">
-              <button
-                onClick={handleCreateNewRoom}
-                className="w-full bg-blue-600 text-white py-4 px-6 rounded-xl font-semibold text-lg hover:bg-blue-700 transition-colors duration-200 flex items-center justify-center space-x-2"
-              >
-                <svg
-                  className="w-6 h-6"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
+              <LoadingOverlay show={isCreatingRoom} message="Creating room...">
+                <button
+                  onClick={handleCreateRoom}
+                  disabled={isCreatingRoom || isJoiningRoom}
+                  className="w-full bg-blue-600 text-white py-4 px-6 rounded-xl font-semibold text-lg hover:bg-blue-700 transition-colors duration-200 flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-                  />
-                </svg>
-                <span>Create New Room</span>
-              </button>
+                  {isCreatingRoom ? (
+                    <div className="animate-spin w-6 h-6 border-2 border-white border-t-transparent rounded-full" />
+                  ) : (
+                    <svg
+                      className="w-6 h-6"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                      />
+                    </svg>
+                  )}
+                  <span>{isCreatingRoom ? 'Creating...' : 'Create New Room'}</span>
+                </button>
+              </LoadingOverlay>
 
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">
@@ -209,13 +249,18 @@ export default function HomePage() {
                   )}
                 </div>
 
-                <button
-                  onClick={handleJoinRoom}
-                  disabled={!roomId.trim()}
-                  className="w-full bg-gray-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-gray-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors duration-200"
-                >
-                  Join Room
-                </button>
+                <LoadingOverlay show={isJoiningRoom} message="Joining room...">
+                  <button
+                    onClick={handleJoinRoom}
+                    disabled={!roomId.trim() || isCreatingRoom || isJoiningRoom}
+                    className="w-full bg-gray-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-gray-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors duration-200 flex items-center justify-center space-x-2"
+                  >
+                    {isJoiningRoom ? (
+                      <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full" />
+                    ) : null}
+                    <span>{isJoiningRoom ? 'Joining...' : 'Join Room'}</span>
+                  </button>
+                </LoadingOverlay>
               </div>
             </div>
           </div>

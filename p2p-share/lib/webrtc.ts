@@ -1,4 +1,4 @@
-import { PeerConnection, P2PMessage, RTCConfiguration as P2PRTCConfiguration } from './types'
+import { P2PMessage } from './types'
 
 // WebRTC Configuration with TURN servers for NAT traversal
 const DEFAULT_RTC_CONFIG: RTCConfiguration = {
