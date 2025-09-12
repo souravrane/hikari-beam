@@ -1,6 +1,5 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'standalone',
   webpack: (config) => {
     // Fix for socket.io-client in browser
     config.resolve.fallback = {
