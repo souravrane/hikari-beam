@@ -1,44 +1,22 @@
-# Multi-stage build for P2P File Sharing App
-FROM node:18-alpine AS base
+FROM node:18-alpine
 
-# Install dependencies only when needed
-FROM base AS deps
 WORKDIR /app
 
 # Copy package files
-COPY signaling-server/package*.json ./signaling-server/
+COPY package*.json ./
 COPY p2p-share/package*.json ./p2p-share/
+COPY signaling-server/package*.json ./signaling-server/
 
-# Install dependencies
-RUN cd signaling-server && npm ci --only=production
-RUN cd p2p-share && npm ci --only=production
+# Install all dependencies
+RUN npm install
+RUN cd p2p-share && npm install
+RUN cd signaling-server && npm install
+
+# Copy source code
+COPY . .
 
 # Build the frontend
-FROM base AS builder
-WORKDIR /app
-COPY p2p-share/package*.json ./
-RUN npm ci
-COPY p2p-share/ ./
-RUN npm run build
-
-# Production image
-FROM base AS runner
-WORKDIR /app
-
-# Copy signaling server
-COPY --from=deps /app/signaling-server ./signaling-server
-COPY signaling-server/ ./signaling-server/
-
-# Copy built frontend
-COPY --from=builder /app/.next ./.next
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/package*.json ./
-
-# Install production dependencies for frontend
-RUN npm ci --only=production
-
-# Create a simple server to serve both frontend and signaling
-COPY server.js ./
+RUN cd p2p-share && npm run build
 
 EXPOSE 3000
 

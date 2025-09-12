@@ -75,7 +75,7 @@ export function useP2PFileSender(
       })
 
       // Send metadata to all connected peers
-      for (const [peerId, connection] of connections) {
+      for (const [peerId, connection] of connections.entries()) {
         if (connection.dataChannel?.readyState === 'open') {
           await sendMessage(connection.dataChannel, {
             type: 'META',
@@ -151,7 +151,7 @@ export function useP2PFileSender(
       let completedPeers = 0
       let totalTransferred = 0
 
-      for (const [peerId] of connections) {
+      for (const [peerId] of connections.entries()) {
         const state = transferState.current.get(peerId)
         if (state?.receivedCount === fileMetadata.totalChunks) {
           completedPeers++
