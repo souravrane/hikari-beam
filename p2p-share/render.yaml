@@ -3,17 +3,9 @@ services:
     name: file-drop-frontend
     runtime: node
     plan: free
-    rootDir: .
     buildCommand: npm ci && npm run build
     startCommand: npm start
     healthCheckPath: /
-    buildFilter:
-      paths:
-      - package.json
-      - package-lock.json
-      - "**/*.js"
-      - "**/*.ts"
-      - "**/*.tsx"
     envVars:
       - key: NODE_ENV
         value: production
