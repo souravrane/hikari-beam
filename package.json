@@ -2,11 +2,11 @@
   "name": "p2p-filedrop",
   "version": "1.0.0",
   "description": "P2P file sharing application",
-  "main": "server.js",
+  "main": "signaling-server/server.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "node server.js",
-    "build": "cd p2p-share && npm run build"
+    "start": "node signaling-server/server.js",
+    "dev": "node signaling-server/server.js",
+    "build": "cd p2p-share && npm install && npm run build"
   },
   "dependencies": {
     "next": "14.2.0",
