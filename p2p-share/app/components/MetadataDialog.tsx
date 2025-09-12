@@ -67,12 +67,12 @@ export default function MetadataDialog({ metadata, onAccept, onReject }: Metadat
   }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-hidden">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4 lg:p-8">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl xl:max-w-2xl max-h-[95vh] sm:max-h-[90vh] overflow-hidden">
         {/* Header */}
-        <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white p-6">
+        <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white p-4 sm:p-6">
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold">Incoming File</h2>
+            <h2 className="text-lg sm:text-xl font-semibold">Incoming File</h2>
             <button
               onClick={onReject}
               className="text-white hover:text-gray-200 transition-colors duration-200"
@@ -82,24 +82,24 @@ export default function MetadataDialog({ metadata, onAccept, onReject }: Metadat
               </svg>
             </button>
           </div>
-          <p className="text-blue-100 mt-1">
+          <p className="text-blue-100 mt-1 text-sm sm:text-base">
             The host wants to share a file with you
           </p>
         </div>
 
         {/* File Preview */}
-        <div className="p-6">
-          <div className="flex items-start space-x-4 mb-6">
-            <div className="w-16 h-16 bg-gray-100 rounded-xl flex items-center justify-center flex-shrink-0">
+        <div className="p-4 sm:p-6 overflow-y-auto flex-1">
+          <div className="flex items-start space-x-3 sm:space-x-4 mb-4 sm:mb-6">
+            <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gray-100 rounded-xl flex items-center justify-center flex-shrink-0">
               {getFileIcon(metadata.type)}
             </div>
             
             <div className="flex-1 min-w-0">
-              <h3 className="text-lg font-semibold text-gray-900 break-all mb-2">
+              <h3 className="text-base sm:text-lg font-semibold text-gray-900 break-all mb-1 sm:mb-2">
                 {metadata.name}
               </h3>
               
-              <div className="space-y-2 text-sm text-gray-600">
+              <div className="space-y-2 text-xs sm:text-sm text-gray-600">
                 <div className="flex items-center justify-between">
                   <span>Size:</span>
                   <span className="font-medium text-gray-900">
@@ -110,7 +110,7 @@ export default function MetadataDialog({ metadata, onAccept, onReject }: Metadat
                 {metadata.type && (
                   <div className="flex items-center justify-between">
                     <span>Type:</span>
-                    <span className="font-medium text-gray-900">
+                    <span className="font-medium text-gray-900 truncate ml-2">
                       {metadata.type}
                     </span>
                   </div>
@@ -134,46 +134,46 @@ export default function MetadataDialog({ metadata, onAccept, onReject }: Metadat
           </div>
 
           {/* Transfer Info */}
-          <div className="bg-blue-50 rounded-lg p-4 mb-6">
-            <div className="flex items-start space-x-3">
-              <svg className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="bg-blue-50 rounded-lg p-3 sm:p-4 mb-4 sm:mb-6">
+            <div className="flex items-start space-x-2 sm:space-x-3">
+              <svg className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               <div>
-                <h4 className="font-medium text-blue-900 mb-1">Transfer Details</h4>
-                <ul className="text-sm text-blue-700 space-y-1">
+                <h4 className="font-medium text-blue-900 mb-1 text-sm sm:text-base">Transfer Details</h4>
+                <ul className="text-xs sm:text-sm text-blue-700 space-y-1">
                   <li>• Direct peer-to-peer transfer (no servers)</li>
-                  <li>• Chunked streaming with pause/resume support</li>
+                  <li className="hidden sm:block">• Chunked streaming with pause/resume support</li>
                   <li>• File is stored locally in your browser</li>
-                  <li>• Transfer can be paused and resumed anytime</li>
+                  <li className="hidden sm:block">• Transfer can be paused and resumed anytime</li>
                 </ul>
               </div>
             </div>
           </div>
 
           {/* Security Notice */}
-          <div className="bg-amber-50 rounded-lg p-4 mb-6">
-            <div className="flex items-start space-x-3">
-              <svg className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="bg-amber-50 rounded-lg p-3 sm:p-4 mb-4 sm:mb-6">
+            <div className="flex items-start space-x-2 sm:space-x-3">
+              <svg className="w-4 h-4 sm:w-5 sm:h-5 text-amber-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
               </svg>
               <div>
-                <h4 className="font-medium text-amber-900 mb-1">Security Notice</h4>
-                <p className="text-sm text-amber-700">
+                <h4 className="font-medium text-amber-900 mb-1 text-sm sm:text-base">Security Notice</h4>
+                <p className="text-xs sm:text-sm text-amber-700">
                   Only accept files from trusted sources. Always scan downloaded files 
-                  with your antivirus software before opening them.
+                  <span className="hidden sm:inline"> with your antivirus software</span> before opening them.
                 </p>
               </div>
             </div>
           </div>
 
           {/* Actions */}
-          <div className="flex space-x-3">
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
             <button
               onClick={onAccept}
-              className="flex-1 bg-green-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-green-700 transition-colors duration-200 flex items-center justify-center space-x-2"
+              className="flex-1 bg-green-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-green-700 transition-colors duration-200 flex items-center justify-center space-x-2 text-sm sm:text-base"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
               </svg>
               <span>Accept & Download</span>
@@ -181,9 +181,9 @@ export default function MetadataDialog({ metadata, onAccept, onReject }: Metadat
             
             <button
               onClick={onReject}
-              className="flex-1 bg-gray-200 text-gray-800 py-3 px-4 rounded-lg font-semibold hover:bg-gray-300 transition-colors duration-200 flex items-center justify-center space-x-2"
+              className="flex-1 bg-gray-200 text-gray-800 py-3 px-4 rounded-lg font-semibold hover:bg-gray-300 transition-colors duration-200 flex items-center justify-center space-x-2 text-sm sm:text-base"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
               <span>Decline</span>

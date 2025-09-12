@@ -104,7 +104,7 @@ export default function HomePage() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto">
+    <div className="max-w-sm mx-auto sm:max-w-lg md:max-w-xl lg:max-w-2xl xl:max-w-4xl px-4 sm:px-6 lg:px-8">
       {/* Host Room Restoration Banner */}
       {storedHostRoom && (
         <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6">
@@ -168,23 +168,23 @@ export default function HomePage() {
         </div>
       )}
 
-      <div className="text-center mb-12">
-        <h1 className="text-4xl font-bold text-gray-900 mb-4">
+      <div className="text-center mb-8 sm:mb-12">
+        <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-gray-900 mb-3 sm:mb-4">
           Share Files Directly
         </h1>
-        <p className="text-xl text-gray-600 mb-2">
+        <p className="text-base sm:text-lg lg:text-xl text-gray-600 mb-2">
           Peer-to-peer file sharing with WebRTC
         </p>
-        <p className="text-sm text-gray-500">
+        <p className="text-xs sm:text-sm text-gray-500 leading-relaxed max-w-md sm:max-w-lg mx-auto">
           No servers, no storage, no tracking. Just direct browser-to-browser
           transfers.
         </p>
       </div>
 
-      <div className="bg-white rounded-2xl shadow-xl p-8 mb-8">
+      <div className="bg-white rounded-2xl shadow-xl p-4 sm:p-6 lg:p-8 mb-6 sm:mb-8">
         <div className="space-y-6">
           <div>
-            <h2 className="text-2xl font-semibold text-gray-900 mb-6 text-center">
+            <h2 className="text-lg sm:text-xl lg:text-2xl font-semibold text-gray-900 mb-4 sm:mb-6 text-center">
               Get Started
             </h2>
 
@@ -193,7 +193,7 @@ export default function HomePage() {
                 <button
                   onClick={handleCreateRoom}
                   disabled={isCreatingRoom || isJoiningRoom}
-                  className="w-full bg-blue-600 text-white py-4 px-6 rounded-xl font-semibold text-lg hover:bg-blue-700 transition-colors duration-200 flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full bg-blue-600 text-white py-3 sm:py-4 px-4 sm:px-6 rounded-xl font-semibold text-base sm:text-lg hover:bg-blue-700 transition-colors duration-200 flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isCreatingRoom ? (
                     <div className="animate-spin w-6 h-6 border-2 border-white border-t-transparent rounded-full" />
@@ -241,7 +241,7 @@ export default function HomePage() {
                     value={roomId}
                     onChange={handleInputChange}
                     placeholder="Enter 8-character room ID"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-center text-lg font-mono tracking-wider text-gray-900"
+                    className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-center text-base sm:text-lg font-mono tracking-wider text-gray-900"
                     maxLength={8}
                   />
                   {error && (
@@ -253,7 +253,7 @@ export default function HomePage() {
                   <button
                     onClick={handleJoinRoom}
                     disabled={!roomId.trim() || isCreatingRoom || isJoiningRoom}
-                    className="w-full bg-gray-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-gray-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors duration-200 flex items-center justify-center space-x-2"
+                    className="w-full bg-gray-600 text-white py-2.5 sm:py-3 px-4 sm:px-6 rounded-lg font-semibold hover:bg-gray-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors duration-200 flex items-center justify-center space-x-2 text-sm sm:text-base"
                   >
                     {isJoiningRoom ? (
                       <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full" />
@@ -267,11 +267,11 @@ export default function HomePage() {
         </div>
       </div>
 
-      <div className="grid md:grid-cols-3 gap-6">
-        <div className="bg-white rounded-xl p-6 shadow-sm">
-          <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
+      <div className="grid gap-4 sm:gap-6 md:grid-cols-3 lg:gap-8">
+        <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-3 sm:mb-4">
             <svg
-              className="w-6 h-6 text-blue-600"
+              className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -284,17 +284,17 @@ export default function HomePage() {
               />
             </svg>
           </div>
-          <h3 className="font-semibold text-gray-900 mb-2">Secure Transfer</h3>
-          <p className="text-sm text-gray-600">
+          <h3 className="font-semibold text-gray-900 mb-2 text-sm sm:text-base">Secure Transfer</h3>
+          <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
             Files are transferred directly between browsers using encrypted
             WebRTC connections.
           </p>
         </div>
 
-        <div className="bg-white rounded-xl p-6 shadow-sm">
-          <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
+        <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 bg-green-100 rounded-lg flex items-center justify-center mb-3 sm:mb-4">
             <svg
-              className="w-6 h-6 text-green-600"
+              className="w-5 h-5 sm:w-6 sm:h-6 text-green-600"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -307,17 +307,17 @@ export default function HomePage() {
               />
             </svg>
           </div>
-          <h3 className="font-semibold text-gray-900 mb-2">Fast & Direct</h3>
-          <p className="text-sm text-gray-600">
+          <h3 className="font-semibold text-gray-900 mb-2 text-sm sm:text-base">Fast & Direct</h3>
+          <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
             No upload to servers. Files stream directly from sender to receiver
             at full speed.
           </p>
         </div>
 
-        <div className="bg-white rounded-xl p-6 shadow-sm">
-          <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
+        <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-3 sm:mb-4">
             <svg
-              className="w-6 h-6 text-purple-600"
+              className="w-5 h-5 sm:w-6 sm:h-6 text-purple-600"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -330,16 +330,16 @@ export default function HomePage() {
               />
             </svg>
           </div>
-          <h3 className="font-semibold text-gray-900 mb-2">Privacy First</h3>
-          <p className="text-sm text-gray-600">
+          <h3 className="font-semibold text-gray-900 mb-2 text-sm sm:text-base">Privacy First</h3>
+          <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
             No file storage, no tracking, no accounts. Your data stays between
             you and your peers.
           </p>
         </div>
       </div>
 
-      <div className="mt-8 text-center">
-        <p className="text-sm text-gray-500">
+      <div className="mt-6 sm:mt-8 text-center">
+        <p className="text-xs sm:text-sm text-gray-500 leading-relaxed max-w-2xl mx-auto px-4">
           <strong>How it works:</strong> Create or join a room, share files
           directly with peers. Files are chunked and streamed in real-time with
           pause/resume support.

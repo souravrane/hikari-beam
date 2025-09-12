@@ -28,7 +28,13 @@ body {
 
 /* Custom scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 6px;
+}
+
+@media (min-width: 768px) {
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
 }
 
 ::-webkit-scrollbar-track {
@@ -99,4 +105,43 @@ body {
 
 .animate-shimmer {
   animation: shimmer 1.5s infinite;
+}
+
+/* Responsive utilities */
+.truncate-mobile {
+  @apply truncate sm:whitespace-normal;
+}
+
+.hide-mobile {
+  @apply hidden sm:block;
+}
+
+.show-mobile {
+  @apply block sm:hidden;
+}
+
+/* Touch-friendly sizing */
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+@media (min-width: 768px) {
+  .touch-target {
+    min-height: auto;
+    min-width: auto;
+  }
+}
+
+/* Large screen optimizations */
+@media (min-width: 1440px) {
+  .container-xl {
+    max-width: 1280px;
+  }
+}
+
+@media (min-width: 1920px) {
+  .container-2xl {
+    max-width: 1536px;
+  }
 }
