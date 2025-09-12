@@ -49,8 +49,8 @@ A modern, peer-to-peer file sharing application built with Next.js, WebRTC, and 
 1. **Clone the repository**
 
    ```bash
-   git clone https://github.com/souravrane/file-drop.git
-   cd file-drop
+   git clone https://github.com/souravrane/filedrop.git
+   cd filedrop
    ```
 
 2. **Start the application**
@@ -68,11 +68,13 @@ A modern, peer-to-peer file sharing application built with Next.js, WebRTC, and 
 
 If you prefer to run the services separately:
 
-1. **Start the signaling server**
+1. **Install dependencies and start the signaling server**
 
    ```bash
-   cd signaling-server
+   # Install backend dependencies
    npm install
+   
+   # Start signaling server
    npm start
    ```
 
@@ -132,7 +134,11 @@ To share files across devices on your local network:
 ### Project Structure
 
 ```
-p2p-filedrop/
+filedrop/
+├── package.json               # Root package.json (backend config)
+├── signaling-server/          # Socket.IO signaling server
+│   ├── server.js             # Express + Socket.IO server
+│   └── package.json          # Backend dependencies
 ├── p2p-share/                 # Next.js frontend application
 │   ├── app/                   # Next.js app directory
 │   │   ├── components/        # React components
@@ -142,31 +148,31 @@ p2p-filedrop/
 │   │   ├── signaling.ts      # Socket.IO signaling
 │   │   ├── file-transfer.ts  # File transfer logic
 │   │   └── chunking.ts       # File chunking utilities
-│   └── package.json
-├── signaling-server/          # Socket.IO signaling server
-│   ├── server.js             # Express + Socket.IO server
-│   └── package.json
+│   └── package.json          # Frontend dependencies
 └── start.sh                  # Development startup script
 ```
 
 ### Available Scripts
 
+**Backend (Root Directory)**
+
+```bash
+npm install          # Install backend dependencies
+npm start            # Start signaling server (production)
+npm run dev          # Start signaling server (development)
+npm run build        # Build frontend for production
+```
+
 **Frontend (p2p-share)**
 
 ```bash
+cd p2p-share
+npm install          # Install frontend dependencies
 npm run dev          # Start development server
 npm run build        # Build for production
 npm run start        # Start production server
 npm run lint         # Run ESLint
 npm run type-check   # Run TypeScript type checking
-```
-
-**Signaling Server**
-
-```bash
-npm start            # Start the server
-npm run dev          # Start with auto-restart
-npm run watch        # Start with nodemon
 ```
 
 ### Environment Variables
@@ -284,7 +290,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 If you encounter any issues or have questions:
 
-1. Check the [Issues](https://github.com/souravrane/file-drop/issues) page
+1. Check the [Issues](https://github.com/souravrane/filedrop/issues) page
 2. Review the `TESTING.md` file for troubleshooting
 3. Create a new issue with detailed information
 
