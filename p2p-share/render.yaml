@@ -3,9 +3,10 @@ services:
     runtime: node
     plan: free
     rootDir: .
-    buildCommand: npm install && npm run build
+    buildCommand: npm ci && npm run build
     startCommand: npm start
     healthCheckPath: /
+    dockerfilePath: ""
     envVars:
       - key: NODE_ENV
         value: production
