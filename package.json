@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node signaling-server/server.js",
     "dev": "node signaling-server/server.js",
-    "build": "cd p2p-share && npm install && npm run build"
+    "build": "cd p2p-share && npm run build"
   },
   "dependencies": {
     "next": "14.2.0",

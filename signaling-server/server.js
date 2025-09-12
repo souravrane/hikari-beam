@@ -2,7 +2,6 @@ const express = require("express");
 const { createServer } = require("http");
 const { Server } = require("socket.io");
 const cors = require("cors");
-const path = require("path");
 
 const app = express();
 const server = createServer(app);
@@ -22,13 +21,6 @@ app.use(
     credentials: true,
   })
 );
-
-// Serve static files from Next.js build
-const nextBuildPath = path.join(__dirname, "../p2p-share/.next/static");
-const nextPublicPath = path.join(__dirname, "../p2p-share/public");
-
-app.use("/_next/static", express.static(nextBuildPath));
-app.use(express.static(nextPublicPath));
 
 const io = new Server(server, {
   cors: {
@@ -314,51 +306,6 @@ io.on("connection", (socket) => {
   });
 });
 
-// Serve Next.js pages
-const fs = require("fs");
-
-// Check if Next.js build exists
-const nextBuildExists = fs.existsSync(path.join(__dirname, "../p2p-share/.next"));
-
-if (nextBuildExists) {
-  // Serve Next.js static pages
-  app.get("/", (req, res) => {
-    res.sendFile(path.join(__dirname, "../p2p-share/.next/server/app/page.html"));
-  });
-
-  app.get("/r/:roomId", (req, res) => {
-    res.sendFile(path.join(__dirname, "../p2p-share/.next/server/app/r/[roomId]/page.html"));
-  });
-
-  // Catch-all route for Next.js pages
-  app.get("*", (req, res) => {
-    // Try to serve the specific page first, fallback to index
-    const pagePath = path.join(__dirname, `../p2p-share/.next/server/app${req.path}.html`);
-    if (fs.existsSync(pagePath)) {
-      res.sendFile(pagePath);
-    } else {
-      res.sendFile(path.join(__dirname, "../p2p-share/.next/server/app/page.html"));
-    }
-  });
-} else {
-  // Development fallback - redirect to frontend dev server
-  app.get("*", (req, res) => {
-    if (req.path.startsWith("/health") || req.path.startsWith("/stats")) {
-      return; // Let API routes handle themselves
-    }
-    res.send(`
-      <html>
-        <body>
-          <h1>P2P File Share</h1>
-          <p>Frontend not built yet. Please run:</p>
-          <pre>cd p2p-share && npm run build</pre>
-          <p>Or visit the dev server at <a href="http://localhost:3000">http://localhost:3000</a></p>
-        </body>
-      </html>
-    `);
-  });
-}
-
 // Health check endpoint
 app.get("/health", (req, res) => {
   res.json({
@@ -366,7 +313,6 @@ app.get("/health", (req, res) => {
     rooms: rooms.size,
     connections: io.sockets.sockets.size,
     uptime: process.uptime(),
-    frontendBuilt: nextBuildExists,
   });
 });
 
@@ -402,8 +348,17 @@ setInterval(() => {
 }, 60 * 60 * 1000); // Run every hour
 
 const PORT = process.env.PORT || 3001;
+const RAILWAY_STATIC_URL = process.env.RAILWAY_STATIC_URL;
+
 server.listen(PORT, () => {
   console.log(`🚀 P2P Signaling Server running on port ${PORT}`);
-  console.log(`💡 Health check: http://localhost:${PORT}/health`);
-  console.log(`📊 Stats: http://localhost:${PORT}/stats`);
+  
+  if (RAILWAY_STATIC_URL) {
+    console.log(`💡 Health check: ${RAILWAY_STATIC_URL}/health`);
+    console.log(`📊 Stats: ${RAILWAY_STATIC_URL}/stats`);
+    console.log(`🌐 Public URL: ${RAILWAY_STATIC_URL}`);
+  } else {
+    console.log(`💡 Health check: http://localhost:${PORT}/health`);
+    console.log(`📊 Stats: http://localhost:${PORT}/stats`);
+  }
 });
