@@ -1,14 +1,21 @@
 services:
   - type: web
+    name: file-drop-frontend
     runtime: node
     plan: free
     rootDir: .
     buildCommand: npm ci && npm run build
     startCommand: npm start
     healthCheckPath: /
-    dockerfilePath: ""
+    buildFilter:
+      paths:
+      - package.json
+      - package-lock.json
+      - "**/*.js"
+      - "**/*.ts"
+      - "**/*.tsx"
     envVars:
       - key: NODE_ENV
         value: production
       - key: NEXT_PUBLIC_SIGNALING_SERVER
-        value: wss://filedrop-backend.onrender.com
+        value: wss://file-drop-backend.onrender.com

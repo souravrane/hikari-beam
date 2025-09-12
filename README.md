@@ -49,8 +49,8 @@ A modern, peer-to-peer file sharing application built with Next.js, WebRTC, and 
 1. **Clone the repository**
 
    ```bash
-   git clone https://github.com/souravrane/filedrop.git
-   cd filedrop
+   git clone https://github.com/souravrane/file-drop.git
+   cd file-drop
    ```
 
 2. **Start the application**
@@ -134,7 +134,7 @@ To share files across devices on your local network:
 ### Project Structure
 
 ```
-filedrop/
+file-drop/
 ├── package.json               # Root package.json (backend config)
 ├── signaling-server/          # Socket.IO signaling server
 │   ├── server.js             # Express + Socket.IO server
@@ -290,7 +290,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 If you encounter any issues or have questions:
 
-1. Check the [Issues](https://github.com/souravrane/filedrop/issues) page
+1. Check the [Issues](https://github.com/souravrane/file-drop/issues) page
 2. Review the `TESTING.md` file for troubleshooting
 3. Create a new issue with detailed information
 
