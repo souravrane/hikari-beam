@@ -10,4 +10,4 @@ services:
       - key: NODE_ENV
         value: production
       - key: NEXT_PUBLIC_SIGNALING_SERVER
-        value: wss://YOUR_BACKEND_URL.onrender.com
+        value: wss://filedrop-backend.onrender.com
