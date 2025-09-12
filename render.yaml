@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: filedrop-backend
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+    domains:
+      - filedrop-backend.onrender.com

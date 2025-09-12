@@ -12,6 +12,7 @@ app.use(
     origin: [
       "http://localhost:3000",
       "http://127.0.0.1:3000",
+      /\.onrender\.com$/, // Allow Render domains
       /\.railway\.app$/, // Allow Railway domains
       /\.vercel\.app$/, // Allow Vercel domains  
       /\.netlify\.app$/, // Allow Netlify domains
@@ -27,6 +28,7 @@ const io = new Server(server, {
     origin: [
       "http://localhost:3000",
       "http://127.0.0.1:3000",
+      /\.onrender\.com$/, // Allow Render domains
       /\.railway\.app$/, // Allow Railway domains
       /\.vercel\.app$/, // Allow Vercel domains
       /\.netlify\.app$/, // Allow Netlify domains

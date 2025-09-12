@@ -1,0 +1,13 @@
+services:
+  - type: web
+    runtime: node
+    plan: free
+    rootDir: .
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NEXT_PUBLIC_SIGNALING_SERVER
+        value: wss://YOUR_BACKEND_URL.onrender.com
