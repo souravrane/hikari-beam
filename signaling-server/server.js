@@ -13,7 +13,7 @@ app.use(
       "http://localhost:3000",
       "http://127.0.0.1:3000",
       /\.railway\.app$/, // Allow Railway domains
-      /\.vercel\.app$/, // Allow Vercel domains
+      /\.vercel\.app$/, // Allow Vercel domains  
       /\.netlify\.app$/, // Allow Netlify domains
       /\.herokuapp\.com$/, // Allow Heroku domains
     ],
@@ -348,17 +348,16 @@ setInterval(() => {
 }, 60 * 60 * 1000); // Run every hour
 
 const PORT = process.env.PORT || 3001;
-const RAILWAY_STATIC_URL = process.env.RAILWAY_STATIC_URL;
-
 server.listen(PORT, () => {
   console.log(`🚀 P2P Signaling Server running on port ${PORT}`);
   
-  if (RAILWAY_STATIC_URL) {
-    console.log(`💡 Health check: ${RAILWAY_STATIC_URL}/health`);
-    console.log(`📊 Stats: ${RAILWAY_STATIC_URL}/stats`);
-    console.log(`🌐 Public URL: ${RAILWAY_STATIC_URL}`);
-  } else {
-    console.log(`💡 Health check: http://localhost:${PORT}/health`);
-    console.log(`📊 Stats: http://localhost:${PORT}/stats`);
-  }
+  // Use Railway URL if available, fallback to localhost for development
+  const isProduction = process.env.NODE_ENV === 'production' || process.env.RAILWAY_ENVIRONMENT;
+  const baseUrl = isProduction && process.env.RAILWAY_PUBLIC_DOMAIN 
+    ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}`
+    : `http://localhost:${PORT}`;
+  
+  console.log(`🌐 Server URL: ${baseUrl}`);
+  console.log(`💡 Health check: ${baseUrl}/health`);
+  console.log(`📊 Stats: ${baseUrl}/stats`);
 });
