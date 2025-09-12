@@ -3,7 +3,11 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { generateRoomId, isValidRoomId } from "@/signaling";
-import { getStoredHostRoom, clearStoredHostRoom, isStoredHostForRoom } from "@/p2p-manager-fixed";
+import {
+  getStoredHostRoom,
+  clearStoredHostRoom,
+  isStoredHostForRoom,
+} from "@/p2p-manager-fixed";
 
 export default function HomePage() {
   const router = useRouter();
@@ -74,14 +78,29 @@ export default function HomePage() {
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                <svg
+                  className="w-5 h-5 text-blue-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
                 </svg>
               </div>
               <div>
-                <h3 className="font-semibold text-blue-900">Welcome back, Host!</h3>
+                <h3 className="font-semibold text-blue-900">
+                  Welcome back, Host!
+                </h3>
                 <p className="text-sm text-blue-700">
-                  You have an active room: <span className="font-mono font-bold">{storedHostRoom}</span>
+                  You have an active room:{" "}
+                  <span className="font-mono font-bold text-gray-900">
+                    {storedHostRoom}
+                  </span>
                 </p>
               </div>
             </div>
@@ -97,8 +116,18 @@ export default function HomePage() {
                 className="p-2 text-blue-500 hover:text-blue-700 transition-colors"
                 title="Dismiss"
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
                 </svg>
               </button>
             </div>
@@ -172,7 +201,7 @@ export default function HomePage() {
                     value={roomId}
                     onChange={handleInputChange}
                     placeholder="Enter 8-character room ID"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-center text-lg font-mono tracking-wider"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-center text-lg font-mono tracking-wider text-gray-900"
                     maxLength={8}
                   />
                   {error && (
