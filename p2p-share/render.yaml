@@ -1,10 +1,9 @@
 services:
   - type: web
     name: file-drop-frontend
-    runtime: node
+    runtime: docker
     plan: free
-    buildCommand: npm ci && npm run build
-    startCommand: npm start
+    dockerfilePath: ./Dockerfile
     healthCheckPath: /
     envVars:
       - key: NODE_ENV
