@@ -6,21 +6,36 @@ const DEFAULT_RTC_CONFIG: RTCConfiguration = {
     // Google STUN servers
     { urls: 'stun:stun.l.google.com:19302' },
     { urls: 'stun:stun1.l.google.com:19302' },
-    // Free TURN servers for better NAT traversal
+    { urls: 'stun:stun2.l.google.com:19302' },
+    { urls: 'stun:stun3.l.google.com:19302' },
+    { urls: 'stun:stun4.l.google.com:19302' },
+    
+    // Primary TURN servers
     {
-      urls: 'turn:openrelay.metered.ca:80',
+      urls: ['turn:openrelay.metered.ca:80', 'turn:openrelay.metered.ca:443'],
       username: 'openrelayproject',
       credential: 'openrelayproject'
     },
+    
+    // Alternative TURN servers for better reliability
     {
-      urls: 'turn:openrelay.metered.ca:443',
-      username: 'openrelayproject', 
-      credential: 'openrelayproject'
+      urls: 'turn:relay.backups.cz',
+      username: 'webrtc',
+      credential: 'webrtc'
     },
+    {
+      urls: 'turn:relay.backups.cz:443',
+      username: 'webrtc',
+      credential: 'webrtc'
+    },
+    
     // Additional STUN servers for redundancy
-    { urls: 'stun:stun.relay.metered.ca:80' }
+    { urls: 'stun:stun.relay.metered.ca:80' },
+    { urls: 'stun:stun.nextcloud.com:443' },
+    { urls: 'stun:stun.stunprotocol.org:3478' }
   ],
-  iceCandidatePoolSize: 10
+  iceCandidatePoolSize: 15,
+  iceTransportPolicy: 'all'
 }
 
 // DataChannel configuration  
@@ -34,20 +49,46 @@ export const BUFFER_THRESHOLD = 65536 // 64KB
 export const MAX_BUFFER_SIZE = BUFFER_THRESHOLD * 4 // 256KB
 
 /**
- * Create a new RTCPeerConnection with proper configuration
+ * Create a new RTCPeerConnection with proper configuration and timeout handling
  */
 export function createPeerConnection(config?: RTCConfiguration): RTCPeerConnection {
   const rtcConfig = { ...DEFAULT_RTC_CONFIG, ...config }
   const pc = new RTCPeerConnection(rtcConfig)
 
-  // Add connection state logging
+  // Add connection state logging with more detail
   pc.onconnectionstatechange = () => {
-    console.log(`Connection state: ${pc.connectionState}`)
+    console.log(`WebRTC Connection state: ${pc.connectionState}`)
+    if (pc.connectionState === 'failed') {
+      console.warn('WebRTC connection failed - likely NAT traversal issue')
+    }
   }
 
   pc.oniceconnectionstatechange = () => {
     console.log(`ICE connection state: ${pc.iceConnectionState}`)
+    if (pc.iceConnectionState === 'failed') {
+      console.warn('ICE connection failed - TURN servers may be needed')
+    }
   }
+
+  // Log ICE gathering state for debugging
+  pc.onicegatheringstatechange = () => {
+    console.log(`ICE gathering state: ${pc.iceGatheringState}`)
+  }
+
+  // Set up connection timeout (30 seconds)
+  const connectionTimeout = setTimeout(() => {
+    if (pc.connectionState === 'connecting' || pc.connectionState === 'new') {
+      console.warn('WebRTC connection timeout after 30s')
+      pc.close()
+    }
+  }, 30000)
+
+  // Clear timeout when connected
+  pc.addEventListener('connectionstatechange', () => {
+    if (pc.connectionState === 'connected' || pc.connectionState === 'failed' || pc.connectionState === 'closed') {
+      clearTimeout(connectionTimeout)
+    }
+  })
 
   return pc
 }
@@ -237,7 +278,7 @@ export async function handleIceCandidate(
 }
 
 /**
- * Set up ICE candidate handling
+ * Set up ICE candidate handling with debugging
  */
 export function setupIceCandidateHandling(
   peerConnection: RTCPeerConnection,
@@ -245,7 +286,21 @@ export function setupIceCandidateHandling(
 ): void {
   peerConnection.onicecandidate = (event) => {
     if (event.candidate) {
+      // Log candidate type for debugging NAT traversal
+      const candidateType = event.candidate.type || 'unknown'
+      const protocol = event.candidate.protocol || 'unknown'
+      console.log(`ICE candidate: ${candidateType} (${protocol})`, {
+        candidate: event.candidate.candidate,
+        component: event.candidate.component,
+        foundation: event.candidate.foundation,
+        port: event.candidate.port,
+        priority: event.candidate.priority,
+        address: event.candidate.address
+      })
+      
       onIceCandidate(event.candidate)
+    } else {
+      console.log('ICE gathering completed')
     }
   }
 }
