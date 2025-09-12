@@ -1,0 +1,26 @@
+{
+  "name": "p2p-torrent",
+  "version": "1.0.0",
+  "description": "P2P file sharing application",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "build": "cd p2p-share && npm run build"
+  },
+  "dependencies": {
+    "next": "14.2.0",
+    "react": "^18",
+    "react-dom": "^18",
+    "express": "^4.18.0",
+    "socket.io": "^4.7.5",
+    "cors": "^2.8.5"
+  },
+  "keywords": [
+    "p2p",
+    "file-sharing",
+    "webrtc"
+  ],
+  "author": "",
+  "license": "ISC"
+}

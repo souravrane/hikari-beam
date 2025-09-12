@@ -2,12 +2,18 @@ const express = require("express");
 const { createServer } = require("http");
 const { Server } = require("socket.io");
 const cors = require("cors");
+const next = require("next");
 
-const app = express();
-const server = createServer(app);
+const dev = process.env.NODE_ENV !== "production";
+const app = next({ dev });
+const handle = app.getRequestHandler();
+
+// Initialize Express app
+const expressApp = express();
+const server = createServer(expressApp);
 
 // CORS configuration
-app.use(
+expressApp.use(
   cors({
     origin: [
       "http://localhost:3000",
@@ -21,6 +27,7 @@ app.use(
   })
 );
 
+// Socket.IO setup
 const io = new Server(server, {
   cors: {
     origin: [
@@ -36,11 +43,10 @@ const io = new Server(server, {
   transports: ["websocket", "polling"],
 });
 
-// Room and peer management
+// Room and peer management (same as signaling-server/server.js)
 const rooms = new Map();
 const peerToRoom = new Map();
 
-// Room management helper functions
 function createRoom(roomId) {
   if (!rooms.has(roomId)) {
     rooms.set(roomId, {
@@ -58,32 +64,18 @@ function createRoom(roomId) {
 function addPeerToRoom(roomId, socketId, isHost = false) {
   const room = createRoom(roomId);
 
-  // Only assign host if room is empty OR if explicitly requested to be host
   if (room.peers.size === 0) {
     room.host = socketId;
-    console.log(`🎯 ${socketId} becomes HOST of room ${roomId} (first peer)`);
   } else if (isHost && room.host !== socketId) {
-    // Allow explicit host takeover only if current host is not in room
     const currentHostInRoom = room.peers.has(room.host);
     if (!currentHostInRoom) {
       room.host = socketId;
-      console.log(`🎯 ${socketId} becomes HOST of room ${roomId} (takeover)`);
-    } else {
-      console.log(
-        `⚠️ ${socketId} tried to become host but ${room.host} is still active`
-      );
     }
   }
 
   room.peers.add(socketId);
   room.lastActivity = Date.now();
   peerToRoom.set(socketId, roomId);
-
-  console.log(
-    `📊 Room ${roomId}: host=${room.host}, peers=${Array.from(room.peers).join(
-      ", "
-    )}`
-  );
 
   return room;
 }
@@ -98,12 +90,10 @@ function removePeerFromRoom(socketId) {
   room.peers.delete(socketId);
   peerToRoom.delete(socketId);
 
-  // If host left, assign new host
   if (room.host === socketId && room.peers.size > 0) {
     room.host = room.peers.values().next().value;
   }
 
-  // Clean up empty rooms
   if (room.peers.size === 0) {
     rooms.delete(roomId);
     return null;
@@ -120,7 +110,7 @@ function getRoomPeers(roomId) {
   return Array.from(room.peers).map((peerId) => ({
     id: peerId,
     isHost: peerId === room.host,
-    joinedAt: Date.now(), // In production, track actual join time
+    joinedAt: Date.now(),
   }));
 }
 
@@ -128,25 +118,19 @@ function getRoomPeers(roomId) {
 io.on("connection", (socket) => {
   console.log(`Client connected: ${socket.id}`);
 
-  // Join room
   socket.on("join", (roomId, options = {}) => {
     try {
-      console.log(`${socket.id} joining room: ${roomId}`, options);
-
-      // Validate room ID
       if (!roomId || typeof roomId !== "string" || roomId.length !== 8) {
         socket.emit("error", "Invalid room ID");
         return;
       }
 
-      // Leave current room if in one
       const currentRoomId = peerToRoom.get(socket.id);
       if (currentRoomId) {
         socket.leave(currentRoomId);
         removePeerFromRoom(socket.id);
       }
 
-      // Join new room
       socket.join(roomId);
       const room = addPeerToRoom(
         roomId,
@@ -156,49 +140,36 @@ io.on("connection", (socket) => {
       const peers = getRoomPeers(roomId);
       const isHost = room.host === socket.id;
 
-      // Notify the joining peer
       socket.emit("joined", {
         roomId,
-        peers: peers.filter((p) => p.id !== socket.id), // Exclude self
+        peers: peers.filter((p) => p.id !== socket.id),
         isHost,
       });
 
-      // Notify other peers in the room
       socket.to(roomId).emit("peer-joined", {
         id: socket.id,
         isHost,
         joinedAt: Date.now(),
       });
-
-      console.log(
-        `${socket.id} joined room ${roomId} as ${isHost ? "host" : "peer"}`
-      );
-      console.log(`Room ${roomId} now has ${room.peers.size} peers`);
     } catch (error) {
       console.error("Error joining room:", error);
       socket.emit("error", "Failed to join room");
     }
   });
 
-  // Leave room
   socket.on("leave", (roomId) => {
     try {
-      console.log(`${socket.id} leaving room: ${roomId}`);
-
       socket.leave(roomId);
       const room = removePeerFromRoom(socket.id);
 
       if (room) {
-        // Notify other peers
         socket.to(roomId).emit("peer-left", socket.id);
-        console.log(`${socket.id} left room ${roomId}`);
       }
     } catch (error) {
       console.error("Error leaving room:", error);
     }
   });
 
-  // Handle signaling messages
   socket.on("signal", (data) => {
     try {
       const { to, signal } = data;
@@ -208,9 +179,6 @@ io.on("connection", (socket) => {
         return;
       }
 
-      console.log(`Relaying ${signal.type} from ${socket.id} to ${to}`);
-
-      // Relay signaling message to target peer
       socket.to(to).emit("signal", {
         from: socket.id,
         signal,
@@ -221,7 +189,6 @@ io.on("connection", (socket) => {
     }
   });
 
-  // Handle file sharing status
   socket.on("file-status", (data) => {
     try {
       const roomId = peerToRoom.get(socket.id);
@@ -230,19 +197,16 @@ io.on("connection", (socket) => {
       const room = rooms.get(roomId);
       if (!room || room.host !== socket.id) return;
 
-      // Update room file status
       if (data.fileId) {
         room.fileId = data.fileId;
       }
 
-      // Broadcast file status to all peers in room
       socket.to(roomId).emit("file-status", data);
     } catch (error) {
       console.error("Error handling file status:", error);
     }
   });
 
-  // Handle host reconnection
   socket.on("host-reconnect", (data) => {
     try {
       const { roomId, fileId } = data;
@@ -252,7 +216,6 @@ io.on("connection", (socket) => {
       const room = rooms.get(roomId);
       if (!room) return;
 
-      // Rejoin as host
       socket.join(roomId);
       room.host = socket.id;
       room.peers.add(socket.id);
@@ -262,20 +225,14 @@ io.on("connection", (socket) => {
         room.fileId = fileId;
       }
 
-      // Notify all peers that host has rejoined
       socket.to(roomId).emit("host-rejoined", {
         fileId: room.fileId,
       });
-
-      console.log(
-        `Host ${socket.id} rejoined room ${roomId} with file ${fileId}`
-      );
     } catch (error) {
       console.error("Error handling host reconnect:", error);
     }
   });
 
-  // Handle disconnection
   socket.on("disconnect", (reason) => {
     try {
       console.log(`Client disconnected: ${socket.id} (${reason})`);
@@ -287,15 +244,11 @@ io.on("connection", (socket) => {
         if (room) {
           const wasHost = room.host === socket.id;
 
-          // Notify remaining peers
           socket.to(roomId).emit("peer-left", socket.id);
 
           if (wasHost) {
-            // Notify peers that host went offline
             socket.to(roomId).emit("host-status", { isOnline: false });
           }
-
-          console.log(`Peer ${socket.id} removed from room ${roomId}`);
         }
       }
     } catch (error) {
@@ -305,7 +258,7 @@ io.on("connection", (socket) => {
 });
 
 // Health check endpoint
-app.get("/health", (req, res) => {
+expressApp.get("/health", (req, res) => {
   res.json({
     status: "ok",
     rooms: rooms.size,
@@ -315,7 +268,7 @@ app.get("/health", (req, res) => {
 });
 
 // Room stats endpoint
-app.get("/stats", (req, res) => {
+expressApp.get("/stats", (req, res) => {
   const roomStats = Array.from(rooms.entries()).map(([id, room]) => ({
     id,
     peers: room.peers.size,
@@ -332,7 +285,7 @@ app.get("/stats", (req, res) => {
   });
 });
 
-// Cleanup old empty rooms periodically
+// Cleanup old rooms
 setInterval(() => {
   const now = Date.now();
   const maxAge = 24 * 60 * 60 * 1000; // 24 hours
@@ -345,9 +298,17 @@ setInterval(() => {
   }
 }, 60 * 60 * 1000); // Run every hour
 
-const PORT = process.env.PORT || 3001;
-server.listen(PORT, () => {
-  console.log(`🚀 P2P Signaling Server running on port ${PORT}`);
-  console.log(`💡 Health check: http://localhost:${PORT}/health`);
-  console.log(`📊 Stats: http://localhost:${PORT}/stats`);
+// Next.js request handling
+expressApp.all("*", (req, res) => {
+  return handle(req, res);
+});
+
+const PORT = process.env.PORT || 3000;
+
+app.prepare().then(() => {
+  server.listen(PORT, () => {
+    console.log(`🚀 P2P File Sharing App running on port ${PORT}`);
+    console.log(`💡 Health check: http://localhost:${PORT}/health`);
+    console.log(`📊 Stats: http://localhost:${PORT}/stats`);
+  });
 });
