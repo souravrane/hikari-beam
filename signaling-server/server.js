@@ -15,6 +15,7 @@ app.use(
       /\.railway\.app$/, // Allow Railway domains
       /\.vercel\.app$/, // Allow Vercel domains
       /\.netlify\.app$/, // Allow Netlify domains
+      /\.herokuapp\.com$/, // Allow Heroku domains
     ],
     methods: ["GET", "POST"],
     credentials: true,
@@ -29,6 +30,7 @@ const io = new Server(server, {
       /\.railway\.app$/, // Allow Railway domains
       /\.vercel\.app$/, // Allow Vercel domains
       /\.netlify\.app$/, // Allow Netlify domains
+      /\.herokuapp\.com$/, // Allow Heroku domains
     ],
     methods: ["GET", "POST"],
     credentials: true,

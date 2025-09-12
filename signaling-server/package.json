@@ -16,7 +16,15 @@
   "devDependencies": {
     "nodemon": "^2.0.20"
   },
-  "keywords": ["webrtc", "p2p", "signaling", "file-sharing"],
+  "keywords": [
+    "webrtc",
+    "p2p",
+    "signaling",
+    "file-sharing"
+  ],
   "author": "P2P File Share",
-  "license": "MIT"
+  "license": "MIT",
+  "engines": {
+    "node": "18.x"
+  }
 }
