@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { io, Socket } from 'socket.io-client'
 import { generateFileMetadata } from './chunking'
 import { FileMetadata } from './types'
+import { useEtaPredictor } from './eta/useEtaPredictor'
 
 const SIGNALING_SERVER = process.env.NEXT_PUBLIC_SIGNALING_SERVER || 'ws://localhost:3001'
 
@@ -29,6 +30,64 @@ export function useP2PManager(roomId: string) {
   const [error, setError] = useState<string | null>(null)
 
   const receivedChunks = useRef<Map<number, ArrayBuffer>>(new Map())
+  
+  // ETA predictor for download progress (peer side)
+  const downloadEta = useEtaPredictor(
+    'download', 
+    fileMetadata?.size || 0,
+    {
+      windowMs: 4000,
+      updateIntervalMs: 1000,
+      stallTimeMs: 2000,
+    }
+  )
+
+  // Host-side ETA tracking - simple manual calculation with timestamps
+  const peerSendStats = useRef<Map<string, { startTime: number; sentBytes: number; samples: Array<{time: number, bytes: number}> }>>(new Map())
+  
+  // Helper function to calculate ETA for host-side transfers
+  const calculateHostETA = useCallback((peerId: string, sentBytes: number, totalBytes: number) => {
+    const stats = peerSendStats.current.get(peerId);
+    if (!stats) return { eta: "calculating...", speed: 0, etaStable: false };
+    
+    const now = Date.now();
+    const elapsedSeconds = (now - stats.startTime) / 1000;
+    
+    if (elapsedSeconds < 1) {
+      return { eta: "calculating...", speed: 0, etaStable: false };
+    }
+    
+    // Calculate current speed (bytes per second)
+    const speed = sentBytes / elapsedSeconds;
+    const remainingBytes = totalBytes - sentBytes;
+    
+    if (speed <= 0 || sentBytes === 0) {
+      return { eta: "calculating...", speed: 0, etaStable: false };
+    }
+    
+    const etaSeconds = remainingBytes / speed;
+    const etaStable = elapsedSeconds >= 3; // Stable after 3 seconds
+    
+    // Format ETA
+    const formatETA = (seconds: number): string => {
+      if (seconds <= 0 || !isFinite(seconds)) return "0:00";
+      const hours = Math.floor(seconds / 3600);
+      const minutes = Math.floor((seconds % 3600) / 60);
+      const secs = Math.floor(seconds % 60);
+      
+      if (hours > 0) {
+        return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+      } else {
+        return `${minutes}:${secs.toString().padStart(2, '0')}`;
+      }
+    };
+    
+    return {
+      eta: formatETA(etaSeconds),
+      speed,
+      etaStable
+    };
+  }, [])
   
   // Refs for accessing current state in event handlers
   const socketRef = useRef<Socket | null>(null)
@@ -565,6 +624,13 @@ export function useP2PManager(roomId: string) {
       return
     }
     
+    // Initialize peer stats for ETA tracking
+    peerSendStats.current.set(peerId, {
+      startTime: Date.now(),
+      sentBytes: 0,
+      samples: []
+    })
+    
     // Initialize progress
     setTransferProgress(prev => {
       const newProgress = new Map(prev)
@@ -573,10 +639,11 @@ export function useP2PManager(roomId: string) {
         total: totalChunks,
         percentage: 0,
         status: 'starting',
-        receivedBytes: 0, // Changed from bytesTransferred
+        receivedBytes: 0,
         totalBytes: file.size,
         speed: 0,
-        eta: 0
+        eta: "calculating...",
+        etaStable: false
       })
       return newProgress
     })
@@ -602,16 +669,26 @@ export function useP2PManager(roomId: string) {
       if (channel.readyState === 'open') {
         channel.send(JSON.stringify(message))
         
+        // Update peer stats and calculate ETA
+        const sentBytes = (i + 1) * chunkSize;
+        const stats = peerSendStats.current.get(peerId);
+        if (stats) {
+          stats.sentBytes = sentBytes;
+        }
+        
+        const etaInfo = calculateHostETA(peerId, sentBytes, file.size);
+        
         // Update progress
         const currentProgress = {
           sent: i + 1,
           total: totalChunks,
           percentage: ((i + 1) / totalChunks) * 100,
           status: i === totalChunks - 1 ? 'completed' : 'uploading',
-          receivedBytes: (i + 1) * chunkSize, // Changed from bytesTransferred
+          receivedBytes: sentBytes,
           totalBytes: file.size,
-          speed: 0, // Could calculate this if needed
-          eta: 0 // Could calculate this if needed
+          speed: etaInfo.speed,
+          eta: etaInfo.eta,
+          etaStable: etaInfo.etaStable
         }
         
         console.log(`📊 Upload progress to ${peerId}: ${currentProgress.sent}/${currentProgress.total} chunks (${currentProgress.percentage.toFixed(1)}%)`)
@@ -637,11 +714,16 @@ export function useP2PManager(roomId: string) {
         newProgress.set(peerId, {
           ...currentProgress,
           status: 'completed',
-          percentage: 100
+          percentage: 100,
+          eta: "0:00",
+          etaStable: true
         })
       }
       return newProgress
     })
+    
+    // Clean up peer stats
+    peerSendStats.current.delete(peerId)
   }
 
   const handleChunkReceived = (chunkData: any, peerId: string) => {
@@ -659,6 +741,9 @@ export function useP2PManager(roomId: string) {
     receivedChunks.current.set(index, bytes.buffer)
     console.log(`💾 Stored chunk ${index}, total received: ${receivedChunks.current.size}`)
     
+    // Update ETA predictor with chunk size
+    downloadEta.onChunk(bytes.length)
+    
     // Update progress
     if (fileMetadataRef.current) {
       const chunkSize = 32 * 1024 // 32KB chunks
@@ -667,10 +752,13 @@ export function useP2PManager(roomId: string) {
         total: fileMetadataRef.current.totalChunks,
         percentage: (receivedChunks.current.size / fileMetadataRef.current.totalChunks) * 100,
         status: receivedChunks.current.size === fileMetadataRef.current.totalChunks ? 'completed' : 'downloading',
-        receivedBytes: receivedChunks.current.size * chunkSize, // Changed from bytesTransferred
+        receivedBytes: receivedChunks.current.size * chunkSize,
         totalBytes: fileMetadataRef.current.size,
-        speed: 0, // Could calculate this if needed
-        eta: 0 // Could calculate this if needed
+        speed: downloadEta.currentSpeed,
+        eta: downloadEta.etaText,
+        etaLowText: downloadEta.etaLowText,
+        etaHighText: downloadEta.etaHighText,
+        etaStable: downloadEta.stable
       }
       console.log(`📊 Download progress: ${progress.received}/${progress.total} chunks (${progress.percentage.toFixed(1)}%)`)
       
@@ -837,7 +925,10 @@ export function useP2PManager(roomId: string) {
     connectionStates,
     shareFile,
     acceptFile,
-    rejectFile
+    rejectFile,
+    downloadEta,
+    hostEtaPredictors: peerSendStats,
+    socket
   }
 }
 

@@ -246,7 +246,7 @@ export default function RoomPage() {
                     Downloading: {p2p.fileMetadata.name}
                   </h4>
                   {p2p.transferProgress.has("download") && (
-                    <div className="mt-2">
+                    <div className="mt-2 space-y-2">
                       <div className="flex justify-between text-xs sm:text-sm text-blue-700">
                         <span>Progress</span>
                         <span className="font-mono">
@@ -256,7 +256,7 @@ export default function RoomPage() {
                           %
                         </span>
                       </div>
-                      <div className="w-full bg-blue-200 rounded-full h-2 mt-1">
+                      <div className="w-full bg-blue-200 rounded-full h-2">
                         <div
                           className="bg-blue-600 h-2 rounded-full transition-all duration-300"
                           style={{
@@ -265,6 +265,21 @@ export default function RoomPage() {
                             }%`,
                           }}
                         />
+                      </div>
+                      
+                      {/* ETA Display */}
+                      <div className="flex justify-between items-center text-xs text-blue-600">
+                        <span className="flex items-center space-x-1">
+                          <span>ETA:</span>
+                          <span className={`font-mono ${p2p.downloadEta.stable ? 'text-blue-700' : 'text-yellow-600'}`}>
+                            {p2p.downloadEta.etaText}
+                          </span>
+                        </span>
+                        {p2p.downloadEta.currentSpeed > 0 && (
+                          <span className="font-mono text-blue-500">
+                            {(p2p.downloadEta.currentSpeed / 1024 / 1024).toFixed(1)} MB/s
+                          </span>
+                        )}
                       </div>
                     </div>
                   )}
@@ -325,6 +340,8 @@ export default function RoomPage() {
             isHost={p2p.isHost}
             connections={peerConnections}
             transferProgress={p2p.isHost ? p2p.transferProgress : new Map()}
+            socket={p2p.socket}
+            hostEta={p2p.hostEtaPredictors}
           />
 
           {/* Instructions */}

@@ -3,14 +3,17 @@
 import { PeerInfo, PeerConnection } from '@/types'
 import { formatBytes, formatSpeed } from '@/chunking'
 
+
 interface PeerListProps {
   peers: PeerInfo[]
   isHost: boolean
   connections: Map<string, PeerConnection>
   transferProgress?: Map<string, any>
+  socket?: any
+  hostEta?: any // host-side ETA predictor
 }
 
-export default function PeerList({ peers, isHost, connections, transferProgress = new Map() }: PeerListProps) {
+export default function PeerList({ peers, isHost, connections, transferProgress = new Map(), socket, hostEta }: PeerListProps) {
   const getConnectionState = (peerId: string) => {
     const connection = connections.get(peerId)
     return connection?.state || 'disconnected'
@@ -150,11 +153,28 @@ export default function PeerList({ peers, isHost, connections, transferProgress 
                       )}
                     </div>
 
-                    {progress.eta > 0 && progress.eta < Infinity && (
-                      <div className="text-xs text-gray-500">
-                        ETA: {Math.ceil(progress.eta / 60)}m {Math.ceil(progress.eta % 60)}s
-                      </div>
-                    )}
+                    {/* Enhanced ETA Display */}
+                    <div className="text-xs text-gray-500 flex items-center justify-between">
+                      <span className="flex items-center space-x-1">
+                        <span>ETA:</span>
+                        {progress.eta && progress.eta !== "calculating..." && progress.eta !== "—" && (
+                          <span className={`font-mono ${progress.etaStable ? 'text-gray-700' : 'text-yellow-600'}`}>
+                            {progress.eta}
+                          </span>
+                        )}
+                        {progress.eta === "calculating..." && (
+                          <span className="text-yellow-600">calculating...</span>
+                        )}
+                        {progress.eta === "—" && (
+                          <span className="text-gray-400">—</span>
+                        )}
+                      </span>
+                      {progress.etaStable && progress.etaLowText && progress.etaHighText && (
+                        <span className="text-xs text-gray-400 hidden lg:inline">
+                          ±({progress.etaLowText}-{progress.etaHighText})
+                        </span>
+                      )}
+                    </div>
 
                     {progress.status === 'error' && progress.error && (
                       <div className="text-xs text-red-600 bg-red-50 p-2 rounded break-all">

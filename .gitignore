@@ -25,6 +25,8 @@ Thumbs.db
 .vscode/
 .idea/
 *.swp
+.claude/
+
 
 # test coverage
 coverage/
