@@ -2,7 +2,7 @@
 
 import { PeerInfo, PeerConnection } from '@/types'
 import { formatBytes, formatSpeed } from '@/chunking'
-import StatusPill, { useConnectionStates } from './StatusPill'
+
 
 interface PeerListProps {
   peers: PeerInfo[]
