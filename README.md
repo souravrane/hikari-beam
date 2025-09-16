@@ -225,10 +225,6 @@ The server is configured to accept connections from:
 - `peer-left` - Peer left the room
 - `signal` - WebRTC signaling data from another peer
 
-## 🧪 Testing
-
-The project includes comprehensive testing documentation. See `TESTING.md` for detailed testing procedures and test cases.
-
 ## 🚀 Deployment
 
 ### Production Build
@@ -252,19 +248,6 @@ The project includes comprehensive testing documentation. See `TESTING.md` for d
    npm start
    ```
 
-### Docker Deployment
-
-```dockerfile
-# Example Dockerfile for signaling server
-FROM node:18-alpine
-WORKDIR /app
-COPY signaling-server/package*.json ./
-RUN npm ci --only=production
-COPY signaling-server/ .
-EXPOSE 3001
-CMD ["npm", "start"]
-```
-
 ## 🤝 Contributing
 
 1. Fork the repository
@@ -277,7 +260,7 @@ CMD ["npm", "start"]
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - **WebRTC** for peer-to-peer communication
 - **Socket.IO** for signaling server
@@ -285,17 +268,12 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **Tailwind CSS** for styling
 - **TypeScript** for type safety
 
-## 📞 Support
+## Support
 
 If you encounter any issues or have questions:
 
 1. Check the [Issues](https://github.com/souravrane/hikari-beam/issues) page
-2. Review the `TESTING.md` file for troubleshooting
-3. Create a new issue with detailed information
-
-## 🔮 Future Enhancements
-
-See `FUTURE_ENHANCEMENTS.md` for planned features and improvements.
+2. Create a new issue with detailed information
 
 ---
 
