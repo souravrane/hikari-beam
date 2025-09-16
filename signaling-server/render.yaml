@@ -11,4 +11,4 @@ services:
       - key: PORT
         value: 3001
     domains:
-      - file-drop-backend.onrender.com
+      - hikari-beam-backend.onrender.com

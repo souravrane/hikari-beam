@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: file-drop-frontend
+    name: hikari-beam-frontend
     runtime: docker
     plan: free
     dockerfilePath: ./Dockerfile
@@ -9,4 +9,4 @@ services:
       - key: NODE_ENV
         value: production
       - key: NEXT_PUBLIC_SIGNALING_SERVER
-        value: wss://file-drop-backend.onrender.com
+        value: wss://hikari-beam-backend.onrender.com
