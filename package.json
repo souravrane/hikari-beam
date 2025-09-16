@@ -2,16 +2,13 @@
   "name": "p2p-filedrop",
   "version": "1.0.0",
   "description": "P2P file sharing application",
-  "main": "signaling-server/server.js",
   "scripts": {
-    "start": "node signaling-server/server.js",
-    "dev": "node signaling-server/server.js",
-    "build": "cd p2p-share && npm run build"
+    "prepare": "husky"
   },
   "dependencies": {
+    "cors": "^2.8.5",
     "express": "^4.18.0",
-    "socket.io": "^4.7.5",
-    "cors": "^2.8.5"
+    "socket.io": "^4.7.5"
   },
   "keywords": [
     "p2p",
@@ -22,5 +19,15 @@
   "license": "ISC",
   "engines": {
     "node": "18.x"
+  },
+  "devDependencies": {
+    "husky": "^9.1.7",
+    "lint-staged": "^16.1.6"
+  },
+  "lint-staged": {
+    "p2p-share/**/*.{js,jsx,ts,tsx}": [
+      "cd p2p-share && npm run lint --fix",
+      "cd p2p-share && npm run type-check"
+    ]
   }
 }
