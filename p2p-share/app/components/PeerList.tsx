@@ -22,7 +22,6 @@ export default function PeerList({
 }: PeerListProps) {
   const getConnectionState = (peerId: string) => {
     const connection = connections.get(peerId);
-    console.log("test");
     return connection?.state || "disconnected";
   };
 
