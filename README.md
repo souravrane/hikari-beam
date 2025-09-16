@@ -12,7 +12,6 @@ A modern, peer-to-peer file sharing application built with Next.js, WebRTC, and 
 - **🚀 Direct P2P Transfer**: Files are shared directly between devices using WebRTC
 - **🌐 Local Network Support**: Works across your local network (WiFi/LAN)
 - **📱 Multi-Device**: Share between phones, tablets, laptops, and desktops
-- **🔄 Resume Support**: Resume interrupted transfers automatically
 - **📊 Real-time Progress**: Live transfer progress and speed monitoring
 - **🎯 Room-based Sharing**: Create rooms and share files with multiple peers
 - **💾 Chunked Transfer**: Large files are split into chunks for reliable transfer
@@ -73,7 +72,7 @@ If you prefer to run the services separately:
    ```bash
    # Install backend dependencies
    npm install
-   
+
    # Start signaling server
    npm start
    ```
